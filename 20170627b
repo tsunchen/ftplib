@@ -1,0 +1,54 @@
+import sys
+import ftplib
+
+
+uname = ''
+passw = ''
+ip = ''
+port = 
+
+#ftp connect and login
+def ftp_init():
+	ftp = ftplib.FTP()
+	print (ftp.connect(ip, port))
+	print (ftp.login(uname, passw))
+	return ftp
+
+def ftp_callback(buf):
+	print (buf)
+
+def ftp_download(ftp, remote_dir, remote_file, local_file):
+	print (ftp.cwd(remote_dir))
+	f = open(local_file, 'wb')
+	ftp.retrbinary('RETR %s'%remote_file, f.write)
+	#ftp.retrbinary('RETR %s'%remote_file, ftp_callback)
+	f.close()
+
+
+def ftp_upload(ftp, remote_dir, remote_file, local_file):
+	print (ftp.cwd(remote_dir))
+	f = open(local_file, 'rb')
+	ftp.storbinary('STOR %s'%remote_file, f)
+	f.close()
+
+
+def ftp_quit(ftp):
+	ftp.close()
+
+
+
+if __name__ == '__main__':
+	#ftp server dir
+	tar_dir = 'pub'
+	aim_file = '1.txt'
+	#save local file
+	download_fname = r'E:/easybridge-home/download.txt'
+	ftp = ftp_init()
+	ftp_download(ftp, tar_dir, aim_file, download_fname)
+	ftp_quit(ftp)
+
+
+	upload_fname = r'E:/easybridge-home/response.txt'
+	ftp = ftp_init()
+	ftp_upload(ftp, tar_dir, 'response.txt', upload_fname)
+	ftp_quit(ftp)
