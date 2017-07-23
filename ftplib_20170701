@@ -1,0 +1,86 @@
+ftplib_初始化应用1
+
+# ftp retr stor dirs 
+import sys
+import ftplib
+import os
+
+
+uname = ''
+passw = ''
+ip = ''
+port = 
+
+remote_dir_info = {}
+local_root = r'E:\backupswitch\localroot'
+
+#ftp connect and login
+def ftp_init():
+	ftp = ftplib.FTP()
+	print (ftp.connect(ip, port))
+	print (ftp.login(uname, passw))
+	return ftp
+
+#def ftp_callback(buf):
+#	print (buf)
+
+def ftp_download(ftp, remote_dir, remote_file, local_file):
+	print (ftp.cwd(remote_dir))
+	f = open(local_file, 'wb')
+	ftp.retrbinary('RETR %s'%remote_file, f.write)
+	#ftp.retrbinary('RETR %s'%remote_file, ftp_callback)
+	f.close()
+
+
+def ftp_upload(ftp, remote_dir, remote_file, local_file):
+	print (ftp.cwd(remote_dir))
+	f = open(local_file, 'rb')
+	ftp.storbinary('STOR %s'%remote_file, f)
+	f.close()
+
+
+def ftp_quit(ftp):
+	ftp.close()
+
+
+def ftp_get_dir(line):
+	#print ('--> %s'%line[-1])
+	#print (line.split())
+	result = line.split()
+	f_type = result[0][0]
+	if f_type == '-':
+		key = 'files'
+	elif f_type == 'd':
+		key = 'dirs'
+	else:
+		return
+	remote_dir_info[key].append(result[-1])
+
+
+def ftp_download_dir (ftp, remote_dir = '.', local_dir = '.'):
+	global remote_dir_info
+	ftp.cwd(remote_dir)
+	remote_dir_info = {'parent': remote_dir, 'dirs': [], 'files': []}
+	ftp.dir(ftp_get_dir)
+	tmp = remote_dir_info
+	print tmp
+
+	path = local_dir + '\\' + remote_dir
+	os.mkdir(path)
+
+	for _dir in tmp['dirs']:
+		ftp_download_dir(ftp, _dir, path)
+	ftp.cwd('..')
+
+
+
+if __name__ == '__main__':
+	#ftp server dir
+	
+	
+	tar_dir = 'pub'
+	ftp = ftp_init()
+	#ftp.cwd(tar_dir)
+	#ftp.dir(ftp_get_dir)
+	ftp_download_dir(ftp, tar_dir, local_root)
+	#print remote_dir_info
