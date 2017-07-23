@@ -1,0 +1,19 @@
+import sys
+import ftplib
+
+uname = ''
+passw = ''
+ip = ''
+port = 
+
+ftp = ftplib.FTP()
+ftp.connect(ip, port)
+ftp.login(uname, passw)
+#ftp.dir()
+ftp.cwd(r'pub')
+#ftp.dir()
+print ftp.nlst()
+fs = open(r'e:/opencv-3.1.0.exe', 'rb')
+ftp.storbinary('STOR opencv-3.1.0.exe', fs)
+fs.close()
+print ftp.nlst()
